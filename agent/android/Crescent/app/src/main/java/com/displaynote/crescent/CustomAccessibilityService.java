@@ -36,7 +36,7 @@ public class CustomAccessibilityService extends AccessibilityService {
 
     //Respond to AccessibilityEvents
     @Override
-    publxic void onAccessibilityEvent(AccessibilityEvent event) {
+    public void onAccessibilityEvent(AccessibilityEvent event) {
 
         if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_CLICKED) {
             Toast.makeText(getApplication(), event.getText().toString(), Toast.LENGTH_SHORT).show();
