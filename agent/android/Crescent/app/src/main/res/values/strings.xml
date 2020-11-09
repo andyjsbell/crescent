@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Crescent</string>
+    <string name="endpoint">"aechbs5w2m0jl-ats.iot.eu-west-1.amazonaws.com"</string>
+    <string name="provisioningTemplate">crescent_onboard</string>
 </resources>

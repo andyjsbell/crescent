@@ -10,6 +10,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val btn = findViewById<Button>(R.id.start_button)
-        btn.setOnClickListener { startJob(applicationContext) }
+        btn.setOnClickListener {
+            startJob(applicationContext)
+            val rootCert = Util.readTextFileFromAssets(applicationContext, "AmazonRootCA1.pem")
+            val claimCert = Util.readTextFileFromAssets(applicationContext, "bb36ce9517-certificate.pem.crt")
+            val claimKey = Util.readTextFileFromAssets(applicationContext, "bb36ce9517-private.pem.key")
+            val endpoint = getString(R.string.endpoint)
+            val provisioningTemplate = getString(R.string.provisioningTemplate)
+
+            val settings = CertSettings("", rootCert, claimCert, claimKey, endpoint, provisioningTemplate)
+            val clientId = "thisisatest"
+            ProvisioningClient(settings, clientId)
+        }
     }
 }

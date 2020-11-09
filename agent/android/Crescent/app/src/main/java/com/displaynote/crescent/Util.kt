@@ -40,7 +40,8 @@ object Util {
                     //log the exception
                 }
             }
-            return null
         }
+
+        return null
     }
 }
