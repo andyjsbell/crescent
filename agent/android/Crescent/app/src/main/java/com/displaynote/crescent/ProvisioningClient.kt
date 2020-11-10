@@ -132,13 +132,13 @@ open class ProvisioningClient(private val settings: CertSettings, private val cl
                                     if (ownershipToken != null) {
                                         // register the device
                                         val registerTemplate = "{\"certificateOwnershipToken\":\"${ownershipToken}\", \"parameters\":{\"SerialNumber\":\"${clientId}\"}}"
+                                        ownershipToken = null
                                         Log.d(TAG, "Registering thing: $registerTemplate")
                                         val templateTopic = "\$aws/provisioning-templates/${settings.template}/provision/json"
                                         Log.d(TAG, "template topic: $templateTopic")
                                         val pubTemplate: CompletableFuture<Int> = connection.publish(MqttMessage(templateTopic, registerTemplate.toByteArray()), QualityOfService.AT_LEAST_ONCE, false)
                                         pubTemplate.get()
                                         Log.d(TAG, "Registered thing!")
-                                        ownershipToken = null
                                     }
                                 }
                                 Log.d(TAG, "Disconnecting")
