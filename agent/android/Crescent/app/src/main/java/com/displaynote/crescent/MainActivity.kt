@@ -1,5 +1,6 @@
 package com.displaynote.crescent
 
+import android.app.Application
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
@@ -17,10 +18,11 @@ class MainActivity : AppCompatActivity() {
             val claimKey = Util.readTextFileFromAssets(applicationContext, "bb36ce9517-private.pem.key")
             val endpoint = getString(R.string.endpoint)
             val provisioningTemplate = getString(R.string.provisioningTemplate)
-
-            val settings = CertSettings("", rootCert, claimCert, claimKey, endpoint, provisioningTemplate)
+            val certPath = applicationContext.filesDir
+            val settings = CertSettings("", rootCert, claimCert, claimKey, endpoint, provisioningTemplate, certPath)
             val clientId = "thisisatest"
-            ProvisioningClient(settings, clientId)
+            val serialNumber = "serialnumbertest"
+            ProvisioningClient(settings, clientId, serialNumber)
         }
     }
 }

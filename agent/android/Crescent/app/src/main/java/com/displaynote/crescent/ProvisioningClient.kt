@@ -1,6 +1,8 @@
 package com.displaynote.crescent
 
 import android.R.id.message
+import android.app.Application
+import com.google.gson.Gson
 import software.amazon.awssdk.crt.CRT
 import software.amazon.awssdk.crt.CrtRuntimeException
 import software.amazon.awssdk.crt.io.ClientBootstrap
@@ -10,13 +12,14 @@ import software.amazon.awssdk.crt.mqtt.MqttClientConnectionEvents
 import software.amazon.awssdk.crt.mqtt.MqttMessage
 import software.amazon.awssdk.crt.mqtt.QualityOfService
 import software.amazon.awssdk.iot.AwsIotMqttConnectionBuilder
+import java.io.File
 import java.io.UnsupportedEncodingException
 import java.nio.charset.Charset
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 
 
-open class ProvisioningClient(private val settings: CertSettings, private val clientId: String?) {
+open class ProvisioningClient(private val settings: CertSettings, private val clientId: String, private val serialNumber: String) {
 
     init {
         initializeClient()
@@ -71,7 +74,42 @@ open class ProvisioningClient(private val settings: CertSettings, private val cl
                                     val sub: CompletableFuture<Int> = connection.subscribe(topic, QualityOfService.AT_LEAST_ONCE) { message: MqttMessage ->
                                         try {
                                             val payload = String(message.payload, Charset.forName("UTF-8"))
-                                            println("TOPIC: $message.topic MESSAGE: $payload")
+                                            println("TOPIC: ${message.topic} MESSAGE: $payload")
+
+                                            when {
+                                                payload.contains("certificateId") -> {
+                                                    var map: Map<String, Any> = HashMap()
+                                                    map = Gson().fromJson(payload, map.javaClass)
+                                                    val certificateId = map["certificateId"].toString()
+                                                    val keyRoot = certificateId.substring(0, 10)
+                                                    val certName = "${keyRoot}-certificate.pem.crt"
+                                                    val certPem = map["certificatePem"]
+                                                    File(settings.certPath, certName).printWriter().use { out ->
+                                                        out.write(certPem.toString())
+                                                    }
+                                                    val keyName = "${keyRoot}-private.pem.key"
+                                                    val privateKey = map["privateKey"]
+                                                    File(settings.certPath, keyName).printWriter().use { out ->
+                                                        out.write(privateKey.toString())
+                                                    }
+
+                                                    val ownershipToken = map["certificateOwnershipToken"].toString()
+
+                                                    // register the device
+                                                    val registerTemplate = "{\"certificateOwnershipToken\": ${ownershipToken}, \"parameters\": {\"SerialNumber\": ${serialNumber}}}"
+                                                    val published: CompletableFuture<Int> = connection.publish(MqttMessage("\$aws/provisioning-templates/${settings.template}/provision/json", registerTemplate.toByteArray()), QualityOfService.AT_LEAST_ONCE, false)
+                                                    published.get()
+
+                                                }
+                                                payload.contains("deviceConfiguration") -> {
+
+                                                }
+                                                payload.contains("service_response") -> {
+
+                                                }
+                                            }
+
+
                                         } catch (ex: UnsupportedEncodingException) {
                                             println("Unable to decode payload: " + ex.message)
                                         }
@@ -80,7 +118,7 @@ open class ProvisioningClient(private val settings: CertSettings, private val cl
                                 }
 
                                 val topic = "\$aws/certificates/create/json"
-                                val published : CompletableFuture<Int> = connection.publish(MqttMessage(topic, "{}".toByteArray()), QualityOfService.AT_LEAST_ONCE, false)
+                                val published: CompletableFuture<Int> = connection.publish(MqttMessage(topic, "{}".toByteArray()), QualityOfService.AT_LEAST_ONCE, false)
                                 published.get()
 //
 //                                while (true) {
