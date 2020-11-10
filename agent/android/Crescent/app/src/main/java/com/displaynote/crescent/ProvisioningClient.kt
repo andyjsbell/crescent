@@ -9,6 +9,7 @@ import software.amazon.awssdk.crt.CrtRuntimeException
 import software.amazon.awssdk.crt.io.ClientBootstrap
 import software.amazon.awssdk.crt.io.EventLoopGroup
 import software.amazon.awssdk.crt.io.HostResolver
+import software.amazon.awssdk.crt.mqtt.MqttClientConnection
 import software.amazon.awssdk.crt.mqtt.MqttClientConnectionEvents
 import software.amazon.awssdk.crt.mqtt.MqttMessage
 import software.amazon.awssdk.crt.mqtt.QualityOfService
@@ -23,11 +24,82 @@ import java.util.concurrent.ExecutionException
 open class ProvisioningClient(private val settings: CertSettings, private val clientId: String) {
 
     val TAG : String = "ProvisioningClient"
+    var keyName : String? = null
+    var certName : String? = null
 
     init {
         initializeClient()
     }
 
+    private fun validateProductionPubSub(connection: MqttClientConnection) {
+        val topic = "openworld"
+//        val sub: CompletableFuture<Int> = connection.subscribe(topic, QualityOfService.AT_LEAST_ONCE) { message: MqttMessage ->
+//            try {
+//                val payload = String(message.payload, Charset.forName("UTF-8"))
+//                Log.d(TAG, "TOPIC: ${message.topic} MESSAGE: $payload")
+//            } catch (ex: UnsupportedEncodingException) {
+//                Log.e(TAG, "Unable to decode payload: " + ex.message)
+//            }
+//        }
+//        sub.get()
+        val published: CompletableFuture<Int> = connection.publish(MqttMessage(topic, "{\"service_response\":\"this now works\"}".toByteArray()), QualityOfService.AT_LEAST_ONCE, false)
+        published.get()
+    }
+    private fun validateCerts(cert: String, privateKey: String): Boolean {
+        val callbacks: MqttClientConnectionEvents = object : MqttClientConnectionEvents {
+            override fun onConnectionInterrupted(errorCode: Int) {
+                if (errorCode != 0) {
+                    Log.e(TAG, "Connection interrupted: " + errorCode + ": " + CRT.awsErrorString(errorCode))
+                }
+            }
+
+            override fun onConnectionResumed(sessionPresent: Boolean) {
+                Log.d(TAG, "Connection resumed: " + if (sessionPresent) "existing session" else "clean session")
+            }
+        }
+
+        var sessionPresent : Boolean = false
+        try {
+            EventLoopGroup(1).use { eventLoopGroup ->
+                HostResolver(eventLoopGroup).use { resolver ->
+                    ClientBootstrap(eventLoopGroup, resolver).use { clientBootstrap ->
+                        AwsIotMqttConnectionBuilder.newMtlsBuilder(cert, privateKey).use { builder ->
+                            builder.withCertificateAuthority(settings.rootCert)
+                            builder.withBootstrap(clientBootstrap)
+                                    .withConnectionEventCallbacks(callbacks)
+                                    .withClientId("$clientId-Prod")
+                                    .withEndpoint(settings.endpoint)
+                                    .withCleanSession(false)
+                                    .withKeepAliveMs(6)
+
+                            builder.build().use { connection ->
+
+                                // Connect client
+                                val connected: CompletableFuture<Boolean> = connection.connect()
+
+                                try {
+                                    sessionPresent = connected.get()
+                                    Log.d(TAG, "Connected to " + (if (!sessionPresent) "new" else "existing") + " session!")
+                                } catch (ex: Exception) {
+                                    throw RuntimeException("Exception occurred during connect", ex)
+                                }
+
+                                val disconnected: CompletableFuture<Void> = connection.disconnect()
+                                disconnected.get()
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (ex: CrtRuntimeException) {
+            Log.e(TAG,"Exception encountered: $ex")
+        } catch (ex: InterruptedException) {
+            Log.e(TAG,"Exception encountered: $ex")
+        } catch (ex: ExecutionException) {
+            Log.e(TAG, "Exception encountered: $ex")
+        }
+        return sessionPresent
+    }
     private fun initializeClient() {
 
         Log.d(TAG, "initializeClient")
@@ -58,6 +130,7 @@ open class ProvisioningClient(private val settings: CertSettings, private val cl
                                     .withClientId(clientId)
                                     .withEndpoint(settings.endpoint)
                                     .withCleanSession(true)
+                                    .withKeepAliveMs(6)
 
                             builder.build().use { connection ->
 
@@ -75,8 +148,8 @@ open class ProvisioningClient(private val settings: CertSettings, private val cl
                                 val createCertRejectedTopic = "\$aws/certificates/create/json/rejected"
                                 val provisionTemplateAcceptedTopic = "\$aws/provisioning-templates/${settings.template}/provision/json/accepted"
                                 val createCertAcceptedTopic = "\$aws/certificates/create/json/accepted"
-
-                                val topics = arrayOf(provisionTemplateRejectedTopic, createCertRejectedTopic, provisionTemplateAcceptedTopic, createCertAcceptedTopic)
+                                val productionPubSubTest = "openworld"
+                                val topics = arrayOf(provisionTemplateRejectedTopic, createCertRejectedTopic, provisionTemplateAcceptedTopic, createCertAcceptedTopic, productionPubSubTest)
                                 for (topic in topics) {
                                     val sub: CompletableFuture<Int> = connection.subscribe(topic, QualityOfService.AT_LEAST_ONCE) { message: MqttMessage ->
                                         try {
@@ -91,14 +164,14 @@ open class ProvisioningClient(private val settings: CertSettings, private val cl
                                                     val certificateId = map["certificateId"].toString()
                                                     val keyRoot = certificateId.substring(0, 10)
                                                     Log.d(TAG, "using root name $keyRoot")
-                                                    val certName = "${keyRoot}-certificate.pem.crt"
+                                                    certName = "${keyRoot}-certificate.pem.crt"
                                                     val certPem = map["certificatePem"]
                                                     File(settings.certPath, certName).printWriter().use { out ->
                                                         out.write(certPem.toString())
                                                     }
                                                     Log.d(TAG, "Written cert")
 
-                                                    val keyName = "${keyRoot}-private.pem.key"
+                                                    keyName = "${keyRoot}-private.pem.key"
                                                     val privateKey = map["privateKey"]
                                                     File(settings.certPath, keyName).printWriter().use { out ->
                                                         out.write(privateKey.toString())
@@ -110,9 +183,19 @@ open class ProvisioningClient(private val settings: CertSettings, private val cl
                                                 payload.contains("deviceConfiguration") -> {
                                                     // validate certs
                                                     Log.d(TAG, "deviceConfiguration located")
+                                                    val cert = File(settings.certPath, certName).readText()
+                                                    val key = File(settings.certPath, keyName).readText()
+                                                    if (validateCerts(cert, key)) {
+                                                        Log.i(TAG, "Certificates validated")
+                                                    } else {
+                                                        Log.e(TAG, "Certificates not valid!")
+                                                    }
+
+                                                    validateProductionPubSub(connection)
                                                 }
                                                 payload.contains("service_response") -> {
-                                                    Log.d(TAG, "service_response located")
+                                                    Log.d(TAG, "service_response located, this is done!")
+                                                    completed = true
                                                 }
                                             }
                                         } catch (ex: UnsupportedEncodingException) {
