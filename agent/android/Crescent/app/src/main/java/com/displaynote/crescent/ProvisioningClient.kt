@@ -20,7 +20,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 
 
-open class ProvisioningClient(private val settings: CertSettings, private val clientId: String, private val serialNumber: String) {
+open class ProvisioningClient(private val settings: CertSettings, private val clientId: String) {
 
     val TAG : String = "ProvisioningClient"
 
@@ -43,6 +43,9 @@ open class ProvisioningClient(private val settings: CertSettings, private val cl
             }
 
         }
+
+        var completed = false
+        var ownershipToken : String? = null
 
         try {
             EventLoopGroup(1).use { eventLoopGroup ->
@@ -101,15 +104,8 @@ open class ProvisioningClient(private val settings: CertSettings, private val cl
                                                         out.write(privateKey.toString())
                                                     }
                                                     Log.d(TAG, "Written key")
-
-                                                    val ownershipToken = map["certificateOwnershipToken"].toString()
-
-                                                    // register the device
-                                                    val registerTemplate = "{\"certificateOwnershipToken\": ${ownershipToken}, \"parameters\": {\"SerialNumber\": ${serialNumber}}}"
-                                                    Log.d(TAG, "Registering thing: $registerTemplate")
-                                                    val published: CompletableFuture<Int> = connection.publish(MqttMessage("\$aws/provisioning-templates/${settings.template}/provision/json", registerTemplate.toByteArray()), QualityOfService.AT_LEAST_ONCE, false)
-                                                    published.get()
-                                                    Log.d(TAG, "Registered thing")
+                                                    ownershipToken = map["certificateOwnershipToken"].toString()
+                                                    Log.d(TAG, "Store ownershipToken to publish and register thing: $ownershipToken")
                                                 }
                                                 payload.contains("deviceConfiguration") -> {
                                                     // validate certs
@@ -129,11 +125,24 @@ open class ProvisioningClient(private val settings: CertSettings, private val cl
                                 val topic = "\$aws/certificates/create/json"
                                 val published: CompletableFuture<Int> = connection.publish(MqttMessage(topic, "{}".toByteArray()), QualityOfService.AT_LEAST_ONCE, false)
                                 published.get()
-
                                 Log.d(TAG, "Published to $topic")
-                                Log.d(TAG, "Now sleeping for 5000")
-                                Thread.sleep(5000)
+
+                                while (!completed) {
+                                    Thread.sleep(100)
+                                    if (ownershipToken != null) {
+                                        // register the device
+                                        val registerTemplate = "{\"certificateOwnershipToken\":\"${ownershipToken}\", \"parameters\":{\"SerialNumber\":\"${clientId}\"}}"
+                                        Log.d(TAG, "Registering thing: $registerTemplate")
+                                        val templateTopic = "\$aws/provisioning-templates/${settings.template}/provision/json"
+                                        Log.d(TAG, "template topic: $templateTopic")
+                                        val pubTemplate: CompletableFuture<Int> = connection.publish(MqttMessage(templateTopic, registerTemplate.toByteArray()), QualityOfService.AT_LEAST_ONCE, false)
+                                        pubTemplate.get()
+                                        Log.d(TAG, "Registered thing!")
+                                        ownershipToken = null
+                                    }
+                                }
                                 Log.d(TAG, "Disconnecting")
+
                                 val disconnected: CompletableFuture<Void> = connection.disconnect()
                                 disconnected.get()
                             }
