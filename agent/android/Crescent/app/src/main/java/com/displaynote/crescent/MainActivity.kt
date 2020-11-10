@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.displaynote.crescent.Util.startJob
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,9 +21,8 @@ class MainActivity : AppCompatActivity() {
             val provisioningTemplate = getString(R.string.provisioningTemplate)
             val certPath = applicationContext.filesDir
             val settings = CertSettings("", rootCert, claimCert, claimKey, endpoint, provisioningTemplate, certPath)
-            val clientId = "thisisatest"
-            val serialNumber = "serialnumbertest"
-            ProvisioningClient(settings, clientId, serialNumber)
+            val clientId = UUID.randomUUID().toString()
+            ProvisioningClient(settings, clientId)
         }
     }
 }
