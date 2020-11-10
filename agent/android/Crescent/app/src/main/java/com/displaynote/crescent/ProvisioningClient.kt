@@ -2,6 +2,7 @@ package com.displaynote.crescent
 
 import android.R.id.message
 import android.app.Application
+import android.util.Log
 import com.google.gson.Gson
 import software.amazon.awssdk.crt.CRT
 import software.amazon.awssdk.crt.CrtRuntimeException
@@ -21,21 +22,24 @@ import java.util.concurrent.ExecutionException
 
 open class ProvisioningClient(private val settings: CertSettings, private val clientId: String, private val serialNumber: String) {
 
+    val TAG : String = "ProvisioningClient"
+
     init {
         initializeClient()
     }
 
     private fun initializeClient() {
 
+        Log.d(TAG, "initializeClient")
         val callbacks: MqttClientConnectionEvents = object : MqttClientConnectionEvents {
             override fun onConnectionInterrupted(errorCode: Int) {
                 if (errorCode != 0) {
-                    println("Connection interrupted: " + errorCode + ": " + CRT.awsErrorString(errorCode))
+                    Log.e(TAG, "Connection interrupted: " + errorCode + ": " + CRT.awsErrorString(errorCode))
                 }
             }
 
             override fun onConnectionResumed(sessionPresent: Boolean) {
-                println("Connection resumed: " + if (sessionPresent) "existing session" else "clean session")
+                Log.d(TAG, "Connection resumed: " + if (sessionPresent) "existing session" else "clean session")
             }
 
         }
@@ -58,7 +62,7 @@ open class ProvisioningClient(private val settings: CertSettings, private val cl
                                 val connected: CompletableFuture<Boolean> = connection.connect()
                                 try {
                                     val sessionPresent: Boolean = connected.get()
-                                    println("Connected to " + (if (!sessionPresent) "new" else "existing") + " session!")
+                                    Log.d(TAG, "Connected to " + (if (!sessionPresent) "new" else "existing") + " session!")
                                 } catch (ex: Exception) {
                                     throw RuntimeException("Exception occurred during connect", ex)
                                 }
@@ -74,44 +78,49 @@ open class ProvisioningClient(private val settings: CertSettings, private val cl
                                     val sub: CompletableFuture<Int> = connection.subscribe(topic, QualityOfService.AT_LEAST_ONCE) { message: MqttMessage ->
                                         try {
                                             val payload = String(message.payload, Charset.forName("UTF-8"))
-                                            println("TOPIC: ${message.topic} MESSAGE: $payload")
+                                            Log.d(TAG,"TOPIC: ${message.topic} MESSAGE: $payload")
 
                                             when {
                                                 payload.contains("certificateId") -> {
+                                                    Log.d(TAG, "certificateId found, now creating cert and key files")
                                                     var map: Map<String, Any> = HashMap()
                                                     map = Gson().fromJson(payload, map.javaClass)
                                                     val certificateId = map["certificateId"].toString()
                                                     val keyRoot = certificateId.substring(0, 10)
+                                                    Log.d(TAG, "using root name $keyRoot")
                                                     val certName = "${keyRoot}-certificate.pem.crt"
                                                     val certPem = map["certificatePem"]
                                                     File(settings.certPath, certName).printWriter().use { out ->
                                                         out.write(certPem.toString())
                                                     }
+                                                    Log.d(TAG, "Written cert")
+
                                                     val keyName = "${keyRoot}-private.pem.key"
                                                     val privateKey = map["privateKey"]
                                                     File(settings.certPath, keyName).printWriter().use { out ->
                                                         out.write(privateKey.toString())
                                                     }
+                                                    Log.d(TAG, "Written key")
 
                                                     val ownershipToken = map["certificateOwnershipToken"].toString()
 
                                                     // register the device
                                                     val registerTemplate = "{\"certificateOwnershipToken\": ${ownershipToken}, \"parameters\": {\"SerialNumber\": ${serialNumber}}}"
+                                                    Log.d(TAG, "Registering thing: $registerTemplate")
                                                     val published: CompletableFuture<Int> = connection.publish(MqttMessage("\$aws/provisioning-templates/${settings.template}/provision/json", registerTemplate.toByteArray()), QualityOfService.AT_LEAST_ONCE, false)
                                                     published.get()
 
                                                 }
                                                 payload.contains("deviceConfiguration") -> {
-
+                                                    // validate certs
+                                                    Log.d(TAG, "deviceConfiguration located")
                                                 }
                                                 payload.contains("service_response") -> {
-
+                                                    Log.d(TAG, "service_response located")
                                                 }
                                             }
-
-
                                         } catch (ex: UnsupportedEncodingException) {
-                                            println("Unable to decode payload: " + ex.message)
+                                            Log.e(TAG,"Unable to decode payload: " + ex.message)
                                         }
                                     }
                                     sub.get()
@@ -120,12 +129,11 @@ open class ProvisioningClient(private val settings: CertSettings, private val cl
                                 val topic = "\$aws/certificates/create/json"
                                 val published: CompletableFuture<Int> = connection.publish(MqttMessage(topic, "{}".toByteArray()), QualityOfService.AT_LEAST_ONCE, false)
                                 published.get()
-//
-//                                while (true) {
-//
-//                                }
 
+                                Log.d(TAG, "Published to $topic")
+                                Log.d(TAG, "Now sleeping for 5000")
                                 Thread.sleep(5000);
+                                Log.d(TAG, "Disconnecting")
                                 val disconnected: CompletableFuture<Void> = connection.disconnect()
                                 disconnected.get()
                             }
@@ -134,11 +142,11 @@ open class ProvisioningClient(private val settings: CertSettings, private val cl
                 }
             }
         } catch (ex: CrtRuntimeException) {
-            println("Exception encountered: $ex")
+            Log.e(TAG,"Exception encountered: $ex")
         } catch (ex: InterruptedException) {
-            println("Exception encountered: $ex")
+            Log.e(TAG,"Exception encountered: $ex")
         } catch (ex: ExecutionException) {
-            println("Exception encountered: " + ex.toString())
+            Log.e(TAG,"Exception encountered: " + ex.toString())
         }
     }
 }
