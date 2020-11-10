@@ -132,7 +132,7 @@ open class ProvisioningClient(private val settings: CertSettings, private val cl
 
                                 Log.d(TAG, "Published to $topic")
                                 Log.d(TAG, "Now sleeping for 5000")
-                                Thread.sleep(5000);
+                                Thread.sleep(5000)
                                 Log.d(TAG, "Disconnecting")
                                 val disconnected: CompletableFuture<Void> = connection.disconnect()
                                 disconnected.get()
@@ -146,7 +146,7 @@ open class ProvisioningClient(private val settings: CertSettings, private val cl
         } catch (ex: InterruptedException) {
             Log.e(TAG,"Exception encountered: $ex")
         } catch (ex: ExecutionException) {
-            Log.e(TAG,"Exception encountered: " + ex.toString())
+            Log.e(TAG, "Exception encountered: $ex")
         }
     }
 }
