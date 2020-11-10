@@ -109,7 +109,7 @@ open class ProvisioningClient(private val settings: CertSettings, private val cl
                                                     Log.d(TAG, "Registering thing: $registerTemplate")
                                                     val published: CompletableFuture<Int> = connection.publish(MqttMessage("\$aws/provisioning-templates/${settings.template}/provision/json", registerTemplate.toByteArray()), QualityOfService.AT_LEAST_ONCE, false)
                                                     published.get()
-
+                                                    Log.d(TAG, "Registered thing")
                                                 }
                                                 payload.contains("deviceConfiguration") -> {
                                                     // validate certs
