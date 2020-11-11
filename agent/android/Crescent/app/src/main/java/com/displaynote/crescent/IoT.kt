@@ -29,8 +29,8 @@ class IoT(
         private val provisioningTemplate: String?
 ) {
     private lateinit var rootCert : String
-    private lateinit var certName : String
-    private lateinit var keyName : String
+    private var certName : String? = null
+    private var keyName : String? = null
     private lateinit var claimCert : String
     private lateinit var claimKey : String
     private var client : Client? = null
@@ -39,14 +39,12 @@ class IoT(
         Log.d(MainActivity.TAG, "Initialising IoT subsystem")
         loadCerts()
         provisionDevice()
-        if (certName.isNotEmpty() && keyName.isNotEmpty()) {
-            val cert = File(certPath, certName).readText()
-            val key = File(certPath, keyName).readText()
-            val clientSettings = ClientSettings(getClientId(certPath), cert, key, rootCert, endpoint.toString())
-            client = Client(clientSettings)
-            client?.connect()
-            Log.d(MainActivity.TAG, "Connected to IoT")
-        }
+        val cert = File(certPath, certName.toString()).readText()
+        val key = File(certPath, keyName.toString()).readText()
+        val clientSettings = ClientSettings(getClientId(certPath), cert, key, rootCert, endpoint.toString())
+        client = Client(clientSettings)
+        client?.connect()
+        Log.d(MainActivity.TAG, "Connected to IoT")
     }
 
     private fun loadCerts() {
@@ -75,7 +73,7 @@ class IoT(
     }
 
     private fun provisionDevice() {
-        if (certName.isEmpty() || keyName.isEmpty()) {
+        if (certName.isNullOrEmpty() || keyName.isNullOrEmpty()) {
             val settings = certPath?.let {
                 ProvisionSettings(
                         getClientId(certPath),
