@@ -26,27 +26,23 @@ class MainActivity : AppCompatActivity() {
             val endpoint = getString(R.string.endpoint)
             val clientId = UUID.randomUUID().toString()
             // Check if we need to provision or use device cert and key
-            var certName : String? = null
+            var certName: String? = null
             certPath.walkTopDown().filter { file ->
                 file.isFile && file.extension == "crt"
-            }.forEach {
-                certName = it.name
-            }
+            }.forEach { certName = it.name }
 
-            var keyName : String? = null
+            var keyName: String? = null
             certPath.walkTopDown().filter { file ->
                 file.isFile && file.extension == "key"
-            }.forEach {
-                keyName = it.name
-            }
+            }.forEach { keyName = it.name }
 
             val claimCert = Util.readTextFileFromAssets(
                     applicationContext,
-                    "bb36ce9517-certificate.pem.crt"
+                    getString(R.string.claimCert)
             )
             val claimKey = Util.readTextFileFromAssets(
                     applicationContext,
-                    "bb36ce9517-private.pem.key"
+                    getString(R.string.claimKey)
             )
             val provisioningTemplate = getString(R.string.provisioningTemplate)
             val settings = ProvisionSettings(
@@ -72,17 +68,12 @@ class MainActivity : AppCompatActivity() {
                 val clientSettings = ClientSettings(clientId, cert, key, rootCert, endpoint)
                 val client = Client(clientSettings)
                 if (client.connect()) {
-//                    client.subscribe("topic") { payload ->
-//                        Log.d(TAG, "payload received: $payload")
-//                    }
-//                    client.publish("topic", "{\"message\":\"hello\"}")
+                    client.subscribe("topic") { payload ->
+                        Log.d(TAG, "payload received: $payload")
+                    }
+                    client.publish("topic", "{\"message\":\"hello\"}")
                 }
             }
-
-
-
-
-
         }
     }
 }

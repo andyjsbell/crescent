@@ -2,4 +2,6 @@
     <string name="app_name">Crescent</string>
     <string name="endpoint">aechbs5w2m0jl-ats.iot.eu-west-1.amazonaws.com</string>
     <string name="provisioningTemplate">birth_of_crescent</string>
+    <string name="claimCert">93756e9eb0-certificate.pem.crt</string>
+    <string name="claimKey">93756e9eb0-private.pem.key</string>
 </resources>
