@@ -7,6 +7,21 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.util.*
 
+object IoTSystem {
+    private var iot : IoT? = null
+
+    fun init(context: Context, certPath: File?, endpoint: String?, provisioningTemplate: String?) : IoT? {
+        if (iot != null) {
+            iot = IoT(context, certPath, endpoint, provisioningTemplate)
+        }
+        return iot
+    }
+
+    fun get() : IoT? {
+        return iot
+    }
+}
+
 class IoT(
         private val context: Context,
         private val certPath: File?,
