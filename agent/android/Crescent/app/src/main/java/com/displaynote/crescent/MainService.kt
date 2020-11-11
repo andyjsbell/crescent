@@ -9,7 +9,7 @@ import android.util.Log
 class MainService : JobService() {
     override fun onStartJob(jobParameters: JobParameters): Boolean {
         Log.d(TAG, "onStartJob called")
-
+        IoTSystem.publish(StateData("job", "start"))
         contentResolver
                 .registerContentObserver(
                         Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS), false,

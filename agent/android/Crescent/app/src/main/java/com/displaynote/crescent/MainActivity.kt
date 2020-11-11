@@ -5,9 +5,6 @@ import android.util.Log
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.displaynote.crescent.Util.startJob
-import java.io.File
-import java.io.FileNotFoundException
-import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,13 +17,15 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         val btn = findViewById<Button>(R.id.start_button)
 
+        IoTSystem.init(applicationContext)
+        startJob(applicationContext)
+
         btn.setOnClickListener {
             // Say hello on click
             IoTSystem.publish(StateData("message", "hello"))
         }
 
-        IoTSystem.init(applicationContext)
-        startJob(applicationContext)
+        IoTSystem.publish(StateData("power", "awake"))
     }
 
     companion object {
