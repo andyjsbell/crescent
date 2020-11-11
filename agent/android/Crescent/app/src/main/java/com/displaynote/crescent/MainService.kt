@@ -32,6 +32,6 @@ class MainService : JobService() {
     }
 
     companion object {
-        private val TAG = MainService::class.java.canonicalName
+        private const val TAG = "MainService"
     }
 }
