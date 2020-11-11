@@ -1,13 +1,12 @@
 package com.displaynote.crescent
 
-import android.app.Application
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.displaynote.crescent.Util.startJob
 import java.io.File
-import java.io.FilenameFilter
+import java.io.FileNotFoundException
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -19,12 +18,21 @@ class MainActivity : AppCompatActivity() {
         btn.setOnClickListener {
             startJob(applicationContext)
             val certPath = applicationContext.filesDir
+            val idFile = getString(R.string.idFile)
             val rootCert = Util.readTextFileFromAssets(
                     applicationContext,
                     "AmazonRootCA1.pem"
             )
             val endpoint = getString(R.string.endpoint)
-            val clientId = UUID.randomUUID().toString()
+            var clientId = UUID.randomUUID().toString()
+            try {
+                clientId = File(certPath, idFile).readText()
+            } catch (e: FileNotFoundException) {
+                Log.e(TAG, "id file not found will proceed to create one")
+                File(certPath, idFile).printWriter().use { out ->
+                    out.write(clientId)
+                }
+            }
             // Check if we need to provision or use device cert and key
             var certName: String? = null
             certPath.walkTopDown().filter { file ->
@@ -67,12 +75,10 @@ class MainActivity : AppCompatActivity() {
                 val key = File(settings.certPath, keyName!!).readText()
                 val clientSettings = ClientSettings(clientId, cert, key, rootCert, endpoint)
                 val client = Client(clientSettings)
-                if (client.connect()) {
-                    client.subscribe("topic") { payload ->
-                        Log.d(TAG, "payload received: $payload")
-                    }
-                    client.publish("topic", "{\"message\":\"hello\"}")
+                client.subscribe("topic") { payload ->
+                    Log.d(TAG, "payload received: $payload")
                 }
+                client.publish("topic", "{\"message\":\"hello\"}")
             }
         }
     }

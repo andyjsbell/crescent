@@ -4,4 +4,5 @@
     <string name="provisioningTemplate">birth_of_crescent</string>
     <string name="claimCert">93756e9eb0-certificate.pem.crt</string>
     <string name="claimKey">93756e9eb0-private.pem.key</string>
+    <string name="idFile">id</string>
 </resources>
