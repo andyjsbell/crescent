@@ -20,7 +20,17 @@ class CustomAccessibilityService : AccessibilityService() {
     //Respond to AccessibilityEvents
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         Log.d(TAG, "onAccessibilityEvent")
-        IoTSystem.get()?.publish("topic", "{\"message\":\"eventType\", \"value\":\"${event.eventType}\"}")
+
+        val payload = "{" +
+                "\"message\":" +
+                "\"packageName\"," +
+                "\"value\":" +
+                "\"${event.packageName.toString()}\"," +
+                "\"time\":" +
+                "\"${event.eventTime}\"" +
+                "}"
+
+        IoTSystem.get()?.publish("topic", payload)
     }
 
     override fun onInterrupt() {
