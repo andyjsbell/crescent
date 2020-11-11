@@ -16,8 +16,8 @@ class MainService : JobService() {
                             override fun onChange(selfChange: Boolean) {
                                 super.onChange(selfChange)
                                 val b = Settings.System.getInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS, -1)
-                                Log.d(TAG, "brightness: $b")
-                                IoTSystem.get()?.publish("topic", "{\"message\":\"brightness\", \"value\":\"$b\"}")
+                                val data = StateData("brightness", b.toString())
+                                IoTSystem.publish(data)
                             }
                         })
         // returning false means the work has been done, return true if the job is being run asynchronously

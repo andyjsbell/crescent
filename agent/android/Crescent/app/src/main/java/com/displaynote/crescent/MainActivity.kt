@@ -24,11 +24,12 @@ class MainActivity : AppCompatActivity() {
         val endpoint = getString(R.string.endpoint)
         val provisioningTemplate = getString(R.string.provisioningTemplate)
 
-        val iot = IoTSystem.init(applicationContext, certPath, endpoint, provisioningTemplate)
-        iot?.subscribe("topic", ::onSubscribeReceived)
+        IoTSystem.init(applicationContext, certPath, endpoint, provisioningTemplate)
+        IoTSystem.subscribe(::onSubscribeReceived)
 
         btn.setOnClickListener {
-            iot?.publish("topic", "{\"message\":\"hello\"}")
+            // Say hello on click
+            IoTSystem.publish(StateData("message", "hello"))
         }
 
         startJob(applicationContext)

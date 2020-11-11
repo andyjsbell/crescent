@@ -1,28 +1,38 @@
 package com.displaynote.crescent
 
 import android.content.Context
-import android.hardware.usb.UsbEndpoint
 import android.util.Log
 import java.io.File
 import java.io.FileNotFoundException
 import java.util.*
+import com.google.gson.Gson
+
+data class AccessibilityData(val name: String, val time: Long, val type: Int) {}
+data class StateData(val name: String, val value: String) {}
 
 object IoTSystem {
     private var iot : IoT? = null
 
-    fun init(context: Context, certPath: File?, endpoint: String?, provisioningTemplate: String?) : IoT? {
+    fun init(context: Context, certPath: File?, endpoint: String?, provisioningTemplate: String?) {
         if (iot == null) {
             iot = IoT(context, certPath, endpoint, provisioningTemplate)
         }
-        return iot
     }
 
-    fun get() : IoT? {
-        return iot
+    fun publish(data: AccessibilityData) {
+        iot?.publish("topic/device/accessibility", Gson().toJson(data))
+    }
+
+    fun publish(data: StateData) {
+        iot?.publish("topic/device/state", Gson().toJson(data))
+    }
+
+    fun subscribe(callback: (String) -> Unit) {
+        iot?.subscribe("topic/device/messages", callback)
     }
 }
 
-class IoT(
+internal class IoT(
         private val context: Context,
         private val certPath: File?,
         private val endpoint: String?,
