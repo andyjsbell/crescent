@@ -28,8 +28,8 @@ class Client(private val settings: ClientSettings) {
     private val eventGroup = EventLoopGroup(1)
     private val resolver = HostResolver(eventGroup)
     private val clientBootstrap = ClientBootstrap(eventGroup, resolver)
-    private lateinit var builder: AwsIotMqttConnectionBuilder
-    private lateinit var connection: MqttClientConnection
+    private var builder: AwsIotMqttConnectionBuilder
+    private var connection: MqttClientConnection
 
     private val callbacks: MqttClientConnectionEvents = object : MqttClientConnectionEvents {
         override fun onConnectionInterrupted(errorCode: Int) {
@@ -88,6 +88,8 @@ class Client(private val settings: ClientSettings) {
                 topic,
                 message.toByteArray()
         ), QualityOfService.AT_LEAST_ONCE, false)
+
+        published.get()
     }
 
     fun disconnect() {
