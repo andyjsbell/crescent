@@ -28,7 +28,10 @@ class Client(private val settings: ClientSettings) {
     private val eventGroup = EventLoopGroup(1)
     private val resolver = HostResolver(eventGroup)
     private val clientBootstrap = ClientBootstrap(eventGroup, resolver)
-    private var builder: AwsIotMqttConnectionBuilder
+    private var builder: AwsIotMqttConnectionBuilder = AwsIotMqttConnectionBuilder.newMtlsBuilder(
+            settings.cert,
+            settings.privateKey
+    )
     private var connection: MqttClientConnection
 
     private val callbacks: MqttClientConnectionEvents = object : MqttClientConnectionEvents {
@@ -44,10 +47,6 @@ class Client(private val settings: ClientSettings) {
     }
 
     init {
-        builder = AwsIotMqttConnectionBuilder.newMtlsBuilder(
-                settings.cert,
-                settings.privateKey
-        )
         builder.withCertificateAuthority(settings.rootCert)
         builder.withBootstrap(clientBootstrap)
                 .withConnectionEventCallbacks(callbacks)
