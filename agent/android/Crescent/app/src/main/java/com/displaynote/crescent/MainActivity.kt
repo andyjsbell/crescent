@@ -20,18 +20,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         val btn = findViewById<Button>(R.id.start_button)
 
-        val certPath = applicationContext.filesDir
-        val endpoint = getString(R.string.endpoint)
-        val provisioningTemplate = getString(R.string.provisioningTemplate)
-
-        IoTSystem.init(applicationContext, certPath, endpoint, provisioningTemplate)
-        IoTSystem.subscribe(::onSubscribeReceived)
-
         btn.setOnClickListener {
             // Say hello on click
             IoTSystem.publish(StateData("message", "hello"))
         }
 
+        IoTSystem.init(applicationContext)
         startJob(applicationContext)
     }
 

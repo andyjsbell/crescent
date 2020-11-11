@@ -13,8 +13,11 @@ data class StateData(val name: String, val value: String) {}
 object IoTSystem {
     private var iot : IoT? = null
 
-    fun init(context: Context, certPath: File?, endpoint: String?, provisioningTemplate: String?) {
+    fun init(context: Context) {
         if (iot == null) {
+            val certPath = context.filesDir
+            val endpoint = context.getString(R.string.endpoint)
+            val provisioningTemplate = context.getString(R.string.provisioningTemplate)
             iot = IoT(context, certPath, endpoint, provisioningTemplate)
         }
     }
