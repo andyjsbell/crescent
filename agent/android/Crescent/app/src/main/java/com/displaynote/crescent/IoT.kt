@@ -11,7 +11,7 @@ object IoTSystem {
     private var iot : IoT? = null
 
     fun init(context: Context, certPath: File?, endpoint: String?, provisioningTemplate: String?) : IoT? {
-        if (iot != null) {
+        if (iot == null) {
             iot = IoT(context, certPath, endpoint, provisioningTemplate)
         }
         return iot
