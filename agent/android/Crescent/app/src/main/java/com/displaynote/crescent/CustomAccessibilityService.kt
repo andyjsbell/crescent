@@ -20,9 +20,7 @@ class CustomAccessibilityService : AccessibilityService() {
     //Respond to AccessibilityEvents
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         Log.d(TAG, "onAccessibilityEvent")
-        if (event.eventType == AccessibilityEvent.TYPE_VIEW_CLICKED) {
-            Log.d(TAG, "view clicked")
-        }
+        IoTSystem.get()?.publish("topic", "{\"message\":\"eventType\", \"value\":\"${event.eventType}\"}")
     }
 
     override fun onInterrupt() {
