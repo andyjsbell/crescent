@@ -258,8 +258,8 @@ class Client(private val settings: ClientSettings, private val ip: String) {
     companion object {
         private const val TAG: String = "Client"
         private const val precursor = "LFD_"
-        private const val Model = "model"
-        private const val Location = "location"
-        private const val Firmware = "firmware"
+        public const val Model = "model"
+        public const val Location = "location"
+        public const val Firmware = "firmware"
     }
 }
