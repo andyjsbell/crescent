@@ -60,7 +60,8 @@ internal class IoT(
         val cert = File(certPath, certName.toString()).readText()
         val key = File(certPath, keyName.toString()).readText()
         val clientSettings = ClientSettings(getClientId(certPath), cert, key, rootCert, endpoint.toString())
-        client = Client(clientSettings)
+        val ipAddress = GetPublicIP().execute().get()
+        client = Client(clientSettings, ipAddress)
         client?.connect()
         Log.d(MainActivity.TAG, "Connected to IoT")
     }

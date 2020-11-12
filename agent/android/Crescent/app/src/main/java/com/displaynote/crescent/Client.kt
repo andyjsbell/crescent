@@ -24,7 +24,7 @@ data class ClientSettings(val clientId: String,
                           val endpoint: String)
 
 
-class Client(private val settings: ClientSettings) {
+class Client(private val settings: ClientSettings, private val ip: String) {
 
     private lateinit var gotResponse: CompletableFuture<Any>
     private val eventGroup = EventLoopGroup(1)
@@ -65,7 +65,7 @@ class Client(private val settings: ClientSettings) {
         shadow = IotShadowClient(connection);
         defaultValue = hashMapOf(
                 Model to "model",
-                Location to GetPublicIP().execute(),
+                Location to ip,
                 Firmware to "abcdeefrghshsdhjsdk"
         )
 
