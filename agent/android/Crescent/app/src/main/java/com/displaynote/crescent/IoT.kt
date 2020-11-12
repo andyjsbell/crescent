@@ -9,6 +9,7 @@ import com.google.gson.Gson
 
 data class AccessibilityData(val name: String, val time: Long, val type: Int) {}
 data class StateData(val name: String, val value: String) {}
+data class MessageData(val name: String, val value: String) {}
 
 object IoTSystem {
     private var iot : IoT? = null
@@ -28,6 +29,10 @@ object IoTSystem {
 
     fun publish(data: StateData) {
         iot?.publish("topic/device/state", Gson().toJson(data))
+    }
+
+    fun publish(data: MessageData) {
+        iot?.publish("topic/device/messages", Gson().toJson(data))
     }
 
     fun subscribe(callback: (String) -> Unit) {
