@@ -16,7 +16,6 @@ import java.io.UnsupportedEncodingException
 import java.nio.charset.Charset
 import java.util.concurrent.CompletableFuture
 
-
 data class ClientSettings(val clientId: String,
                           val cert: String,
                           val privateKey: String,
@@ -63,10 +62,11 @@ class Client(private val settings: ClientSettings, private val ip: String) {
 
         connection = builder.build()
         shadow = IotShadowClient(connection);
+
         defaultValue = hashMapOf(
-                Model to "model",
+                Model to android.os.Build.MODEL,
                 Location to ip,
-                Firmware to "abcdeefrghshsdhjsdk"
+                Firmware to Hardware.firmwareVersion
         )
 
         // Classic thing
