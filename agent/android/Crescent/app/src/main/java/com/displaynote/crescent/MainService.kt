@@ -28,7 +28,7 @@ class MainService : JobService() {
     override fun onStopJob(jobParameters: JobParameters): Boolean {
         // if the job is prematurely cancelled, do cleanup work here
         Log.d(TAG, "onStopJob called")
-
+        IoTSystem.publish(StateData("job", "stop"))
         // return true to restart the job
         return false
     }
