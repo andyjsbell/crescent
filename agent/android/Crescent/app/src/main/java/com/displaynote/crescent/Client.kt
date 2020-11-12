@@ -65,7 +65,7 @@ class Client(private val settings: ClientSettings) {
         shadow = IotShadowClient(connection);
         defaultValue = hashMapOf(
                 Model to "model",
-                Location to "127.0.0.1",
+                Location to GetPublicIP().execute(),
                 Firmware to "abcdeefrghshsdhjsdk"
         )
 
@@ -129,6 +129,7 @@ class Client(private val settings: ClientSettings) {
             changeShadowValue(key, value.toString())
         }
     }
+
     fun changeShadowValue(key: String, value: String): CompletableFuture<Void?>? {
         if (localValue?.get(key) === value) {
             Log.d(TAG, "Local value for $key is already $value")
