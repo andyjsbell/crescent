@@ -16,25 +16,30 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         val btn = findViewById<Button>(R.id.start_button)
 
-        IoTSystem.init(applicationContext)
-        IoTSystem.subscribe {
-            Log.d(TAG, "payload received: $it")
-            try {
-                val data = Gson().fromJson(it, MessageData::class.java)
-                when (data?.name) {
-                    "message" -> {
-                        Log.i(TAG, data.value)
+        try {
+            IoTSystem.init(applicationContext)
+            IoTSystem.subscribe {
+                Log.d(TAG, "payload received: $it")
+                try {
+                    val data = Gson().fromJson(it, MessageData::class.java)
+                    when (data?.name) {
+                        "message" -> {
+                            Log.i(TAG, data.value)
+                        }
+                        "alert" -> {
+                            Log.i(TAG, data.value)
+                            // TODO Not sure why this doesn't work
+                            runOnUiThread { Toast.makeText(this@MainActivity, data.value, Toast.LENGTH_LONG) }
+                        }
                     }
-                    "alert" -> {
-                        Log.i(TAG, data.value)
-                        // TODO Not sure why this doesn't work
-                        runOnUiThread { Toast.makeText(this@MainActivity, data.value, Toast.LENGTH_LONG) }
-                    }
+                } catch (e: JsonSyntaxException) {
+                    Log.e(TAG, "Syntax error in JSON")
                 }
-            } catch (e: JsonSyntaxException) {
-                Log.e(TAG, "Syntax error in JSON")
             }
+        } catch (re: RuntimeException) {
+            Log.e(TAG, "Runtime exception: ${re.message}")
         }
+
         startJob(applicationContext)
 
         btn.setOnClickListener {
