@@ -54,7 +54,7 @@ internal class IoT(
     private var client : Client? = null
 
     init {
-        Log.d(MainActivity.TAG, "Initialising IoT subsystem")
+        Log.d(TAG, "Initialising IoT subsystem")
         loadCerts()
         provisionDevice()
         val cert = File(certPath, certName.toString()).readText()
@@ -63,7 +63,15 @@ internal class IoT(
         val ipAddress = GetPublicIP().execute().get()
         client = Client(clientSettings, ipAddress)
         client?.connect()
-        Log.d(MainActivity.TAG, "Connected to IoT")
+
+        updateShadow()
+        Log.d(TAG, "Connected to IoT")
+    }
+
+    private fun updateShadow() {
+        Log.d(TAG, "update shadow values")
+        client?.changeShadowValue(Client.Location, GetPublicIP().execute().toString())
+        client?.changeShadowValue(Client.Firmware, Hardware.firmwareVersion)
     }
 
     private fun loadCerts() {
