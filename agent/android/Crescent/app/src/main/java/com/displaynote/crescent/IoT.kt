@@ -70,7 +70,7 @@ internal class IoT(
 
     private fun updateShadow() {
         Log.d(TAG, "update shadow values")
-        client?.changeShadowValue(Client.Location, GetPublicIP().execute().toString())
+        client?.changeShadowValue(Client.Location, GetPublicIP().execute().get())
         client?.changeShadowValue(Client.Firmware, Hardware.firmwareVersion)
     }
 
