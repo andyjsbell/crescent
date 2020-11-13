@@ -13,8 +13,10 @@ data class MessageData(val name: String, val value: String) {}
 
 object IoTSystem {
     private var iot : IoT? = null
+    const val TAG: String = "IoTSystem"
 
     fun init(context: Context) {
+        Log.d(TAG, "Starting IoTSystem")
         if (iot == null) {
             val certPath = context.filesDir
             val endpoint = context.getString(R.string.endpoint)
