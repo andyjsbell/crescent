@@ -28,8 +28,6 @@ object Hardware {
         }
         private set
 
-    var isNewline: Boolean = false
-        get() = "HHT".equals(Build.MANUFACTURER, ignoreCase = true)
-        private set
+    private val isNewline: Boolean = "HHT".equals(Build.MANUFACTURER, ignoreCase = true)
 
 }
