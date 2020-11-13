@@ -10,6 +10,8 @@ class MainService : JobService() {
     override fun onStartJob(jobParameters: JobParameters): Boolean {
         Log.d(TAG, "onStartJob called")
         IoTSystem.publish(StateData("job", "start"))
+
+        // Here we start the monitoring, in this case we monitor screen brightness
         contentResolver
                 .registerContentObserver(
                         Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS), false,
