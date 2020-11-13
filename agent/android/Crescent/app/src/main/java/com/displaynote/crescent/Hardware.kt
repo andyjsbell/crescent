@@ -20,7 +20,6 @@ object Hardware {
             sourceManager = SourceManager()
             sourceManager?.registerSourceBroadcast(context, object : SourceManager.OnSourceCallback {
                 override fun onSourceChanged(p0: Int, p1: Boolean) {
-
                     IoTSystem.publish(StateData("sourceChanged", Gson().toJson(object {
                         val input: Int = p0
                         val value: Boolean = p1

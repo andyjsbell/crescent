@@ -7,9 +7,9 @@ import java.io.FileNotFoundException
 import java.util.*
 import com.google.gson.Gson
 
-data class AccessibilityData(val name: String, val time: Long, val type: Int) {}
-data class StateData(val name: String, val value: String) {}
-data class MessageData(val name: String, val value: String) {}
+data class AccessibilityData(val name: String, val time: Long, val type: Int)
+data class StateData(val name: String, val value: String)
+data class MessageData(val name: String, val value: String)
 
 object IoTSystem {
     private var iot : IoT? = null

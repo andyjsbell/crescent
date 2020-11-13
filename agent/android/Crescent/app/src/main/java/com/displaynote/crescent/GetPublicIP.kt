@@ -8,10 +8,6 @@ import java.util.*
 
 class GetPublicIP : AsyncTask<String?, String?, String>() {
 
-    override fun onPostExecute(publicIp: String) {
-        super.onPostExecute(publicIp)
-    }
-
     override fun doInBackground(vararg p0: String?): String {
         var publicIP = ""
         try {

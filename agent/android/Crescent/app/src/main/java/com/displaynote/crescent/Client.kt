@@ -61,7 +61,7 @@ class Client(private val settings: ClientSettings, private val ip: String) {
                 .withCleanSession(true)
 
         connection = builder.build()
-        shadow = IotShadowClient(connection);
+        shadow = IotShadowClient(connection)
 
         defaultValue = hashMapOf(
                 Model to android.os.Build.MODEL,
@@ -258,8 +258,8 @@ class Client(private val settings: ClientSettings, private val ip: String) {
     companion object {
         private const val TAG: String = "Client"
         private const val precursor = "LFD_"
-        public const val Model = "model"
-        public const val Location = "location"
-        public const val Firmware = "firmware"
+        const val Model = "model"
+        const val Location = "location"
+        const val Firmware = "firmware"
     }
 }
