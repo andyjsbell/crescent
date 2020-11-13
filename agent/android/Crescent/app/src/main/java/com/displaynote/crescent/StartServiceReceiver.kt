@@ -12,6 +12,7 @@ class StartServiceReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         Log.d(TAG, "onReceive")
         IoTSystem.init(context)
+        Hardware.init(context)
         startJob(context)
     }
 
