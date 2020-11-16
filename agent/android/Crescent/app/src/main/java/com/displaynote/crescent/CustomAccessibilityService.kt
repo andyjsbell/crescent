@@ -9,7 +9,7 @@ class CustomAccessibilityService : AccessibilityService() {
     //Configure the Accessibility Service
     override fun onServiceConnected() {
         Log.d(TAG, "onServiceConnected")
-        val data = StateData("accessibility", "connected")
+        val data = MessageData("accessibility", "connected")
         IoTSystem.publish(data)
     }
 
@@ -28,7 +28,7 @@ class CustomAccessibilityService : AccessibilityService() {
     override fun onInterrupt() {
         //Interrupt the Accessibility service
         //Stop
-        val data = StateData("accessibility", "interrupt")
+        val data = MessageData("accessibility", "interrupt")
         IoTSystem.publish(data)
     }
 
