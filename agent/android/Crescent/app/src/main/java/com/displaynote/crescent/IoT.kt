@@ -55,15 +55,15 @@ object IoTSystem {
         stateData = data
         // TODO This needs to be moved out to not have hht dependency
         stateData.upTime = AndroidUtils.getPowerOnTime()
-        iot?.publish("topic/device/state", Gson().toJson(stateData))
+        iot?.publish("state", Gson().toJson(stateData))
     }
 
     fun publish(data: MessageData) {
-        iot?.publish("topic/device/messages", Gson().toJson(data))
+        iot?.publish("message", Gson().toJson(data))
     }
 
     fun subscribe(callback: (String) -> Unit) {
-        iot?.subscribe("topic/device/messages", callback)
+        iot?.subscribe("message", callback)
     }
 }
 
@@ -79,6 +79,7 @@ internal class IoT(
     private lateinit var claimCert : String
     private lateinit var claimKey : String
     private var client : Client? = null
+    private val clientId : String
 
     init {
         Log.d(TAG, "Initialising IoT subsystem")
@@ -86,7 +87,8 @@ internal class IoT(
         provisionDevice()
         val cert = File(certPath, certName.toString()).readText()
         val key = File(certPath, keyName.toString()).readText()
-        val clientSettings = ClientSettings(getClientId(certPath), cert, key, rootCert, endpoint.toString())
+        clientId = getClientId(certPath)
+        val clientSettings = ClientSettings(clientId, cert, key, rootCert, endpoint.toString())
         val ipAddress = GetPublicIP().execute().get()
         client = Client(clientSettings, ipAddress)
         client?.connect()
@@ -162,12 +164,12 @@ internal class IoT(
 
     fun subscribe(topic: String, callback: (String) -> Unit) {
         Log.d(TAG, "Subscribing to topic $topic")
-        client?.subscribe(topic, callback)
+        client?.subscribe("/dn/crescent/$clientId/$topic", callback)
     }
 
     fun publish(topic: String, message: String) {
         Log.d(TAG, "Publishing to $topic message: $message")
-        client?.publish(topic, message)
+        client?.publish("/dn/crescent/$clientId/$topic", message)
     }
 
     companion object {
