@@ -25,7 +25,7 @@
     }
   },
   "function": {
-    "createlfd": {
+    "func0crescent0create0lfd": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda",
