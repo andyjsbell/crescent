@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
             IoTSystem.publish(MessageData("message", "hello"))
         }
 
-        IoTSystem.publish(StateData("power", "awake"))
+        IoTSystem.publish(MessageData("power", "awake"))
     }
 
     companion object {
