@@ -1,5 +1,17 @@
-type Todo @model {
+type Signal @model {
+  OPS: Boolean!
+  Front: Boolean!
+  HDMI1: Boolean!
+  HDMI2: Boolean!
+  HDMI3: Boolean!
+  DP: Boolean!
+  VGA: Boolean!
+}
+
+type State @model {
   id: ID!
-  name: String!
-  description: String
+  upTime: String!
+  signal: Signal! @connection
+  usb: Boolean!
+  brightness: Int!
 }
