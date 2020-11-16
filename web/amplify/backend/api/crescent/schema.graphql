@@ -1,5 +1,13 @@
-type Todo @model {
+type State @model {
   id: ID!
-  name: String!
-  description: String
+  upTime: String!
+  OPS: Boolean!
+  Front: Boolean!
+  HDMI1: Boolean!
+  HDMI2: Boolean!
+  HDMI3: Boolean!
+  DP: Boolean!
+  VGA: Boolean!
+  usb: Boolean!
+  brightness: Int!
 }
