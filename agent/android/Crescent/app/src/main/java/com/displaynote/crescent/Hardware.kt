@@ -36,7 +36,7 @@ object Hardware {
                     signal.HDMI3 = sourceManager?.isSourceWithSignal(SourceHDMI3())
                     signal.DP = sourceManager?.isSourceWithSignal(SourceDP())
                     signal.VGA = sourceManager?.isSourceWithSignal(SourceVGA())
-                    stateData.source.signal = signal
+                    stateData.signal = signal
                     IoTSystem.publish(stateData)
                 }
 

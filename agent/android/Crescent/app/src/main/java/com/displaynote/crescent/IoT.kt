@@ -21,10 +21,9 @@ data class Signal(
         var DP: Boolean? = false,
         var VGA: Boolean? = false
 )
-data class VideoSource(var signal: Signal)
 data class StateData(
         var upTime: String = "",
-        var source: VideoSource = VideoSource(Signal()),
+        var signal: Signal = Signal(),
         var usb: Boolean = false,
         var brightness: Int = 0
 )
