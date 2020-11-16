@@ -1,4 +1,7 @@
-type Signal @model {
+type State @model {
+  id: ID!
+  lfdId: ID!
+  upTime: String!
   OPS: Boolean!
   Front: Boolean!
   HDMI1: Boolean!
@@ -6,12 +9,6 @@ type Signal @model {
   HDMI3: Boolean!
   DP: Boolean!
   VGA: Boolean!
-}
-
-type State @model {
-  id: ID!
-  upTime: String!
-  signal: Signal! @connection
   usb: Boolean!
   brightness: Int!
 }
