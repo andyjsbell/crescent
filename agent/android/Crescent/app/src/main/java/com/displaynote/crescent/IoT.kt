@@ -6,14 +6,37 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.util.*
 import com.google.gson.Gson
+import com.hht.support.utils.AndroidUtils
 
 data class AccessibilityData(val name: String, val time: Long, val type: Int)
-data class StateData(val name: String, val value: String)
 data class MessageData(val name: String, val value: String)
+
+// LFD telemetry data
+data class Signal(
+        var OPS: Boolean? = false,
+        var Front: Boolean? = false,
+        var HDMI1: Boolean? = false,
+        var HDMI2: Boolean? = false,
+        var HDMI3: Boolean? = false,
+        var DP: Boolean? = false,
+        var VGA: Boolean? = false
+)
+data class VideoSource(var signal: Signal)
+data class StateData(
+        var upTime: String = "",
+        var source: VideoSource = VideoSource(Signal()),
+        var usb: Boolean = false,
+        var brightness: Int = 0
+)
 
 object IoTSystem {
     private var iot : IoT? = null
-    const val TAG: String = "IoTSystem"
+    private const val TAG: String = "IoTSystem"
+
+    @Volatile
+    var stateData : StateData = StateData()
+        @Synchronized get
+        @Synchronized private set
 
     fun init(context: Context) {
         Log.d(TAG, "Starting IoTSystem")
@@ -30,7 +53,10 @@ object IoTSystem {
     }
 
     fun publish(data: StateData) {
-        iot?.publish("topic/device/state", Gson().toJson(data))
+        stateData = data
+        // TODO This needs to be moved out to not have hht dependency
+        stateData.upTime = AndroidUtils.getPowerOnTime()
+        iot?.publish("topic/device/state", Gson().toJson(stateData))
     }
 
     fun publish(data: MessageData) {
