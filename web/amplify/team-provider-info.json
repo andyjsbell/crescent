@@ -10,6 +10,11 @@
       "StackName": "amplify-crescent-dev-163129",
       "StackId": "arn:aws:cloudformation:eu-west-1:804068722217:stack/amplify-crescent-dev-163129/281948b0-2045-11eb-8ae8-0615142f279a",
       "AmplifyAppId": "d21v72ga8dq0av"
+    },
+    "categories": {
+      "auth": {
+        "crescent4f018edb": {}
+      }
     }
   }
 }
