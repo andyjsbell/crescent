@@ -1,4 +1,4 @@
-type State @model {
+type State @model @aws_iam {
   id: ID!
   lfdId: ID!
   upTime: String!
