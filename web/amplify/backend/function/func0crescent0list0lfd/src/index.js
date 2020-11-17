@@ -17,7 +17,7 @@ exports.handler = async (event) => {
     var resultArray = [];
 
     var params = {
-        queryString: 'shadow.reported.name:* AND thingTypeName:LFD'
+        queryString: 'shadow.reported.location:* AND thingTypeName:LFD'
     };
 
     try {
