@@ -9,8 +9,8 @@ const AWS = require('aws-sdk');
 const urlParse = require("url").URL;
 
 //environment variables
-const region = process.env.REGION
-const appsyncUrl = process.env.API_CRESCENT_GRAPHQLAPIENDPOINTOUTPUT
+const region = process.env.REGION;
+const appsyncUrl = process.env.API_CRESCENT_GRAPHQLAPIENDPOINTOUTPUT;
 const endpoint = new urlParse(appsyncUrl).hostname.toString();
 const createState = /* GraphQL */ `
   mutation CreateState(
