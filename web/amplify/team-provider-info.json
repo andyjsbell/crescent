@@ -20,6 +20,9 @@
           "appId": "d21v72ga8dq0av",
           "type": "cicd"
         }
+      },
+      "function": {
+        "func0crescent0create0lfd": {}
       }
     }
   }
