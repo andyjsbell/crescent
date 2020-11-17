@@ -50,6 +50,12 @@
           ]
         }
       ]
+    },
+    "func0crescent0list0lfd": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda",
+      "dependsOn": []
     }
   },
   "hosting": {
