@@ -1,4 +1,12 @@
-type State @model @auth {
+
+type State @model
+@auth (
+  rules: [
+    { allow: private, provider: iam},
+    { allow: private, provider: userPools}
+  ]
+)
+{
   id: ID!
   lfdId: ID!
   upTime: String!
