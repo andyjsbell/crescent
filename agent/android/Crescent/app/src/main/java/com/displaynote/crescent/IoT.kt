@@ -164,12 +164,12 @@ internal class IoT(
 
     fun subscribe(topic: String, callback: (String) -> Unit) {
         Log.d(TAG, "Subscribing to topic $topic")
-        client?.subscribe("/dn/crescent/$clientId/$topic", callback)
+        client?.subscribe("dn/crescent/$clientId/$topic", callback)
     }
 
     fun publish(topic: String, message: String) {
         Log.d(TAG, "Publishing to $topic message: $message")
-        client?.publish("/dn/crescent/$clientId/$topic", message)
+        client?.publish("dn/crescent/$clientId/$topic", message)
     }
 
     companion object {
