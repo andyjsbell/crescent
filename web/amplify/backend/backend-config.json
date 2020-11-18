@@ -19,7 +19,18 @@
               "userPoolId": "authcrescent4f018edb"
             }
           },
-          "additionalAuthenticationProviders": []
+          "additionalAuthenticationProviders": [
+            {
+              "authenticationType": "API_KEY",
+              "apiKeyConfig": {
+                "apiKeyExpirationDays": 7,
+                "description": "KEY"
+              }
+            },
+            {
+              "authenticationType": "AWS_IAM"
+            }
+          ]
         }
       }
     }
@@ -41,6 +52,12 @@
       ]
     },
     "func0crescent0get0lfd": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda",
+      "dependsOn": []
+    },
+    "func0crescent0list0lfd": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda",

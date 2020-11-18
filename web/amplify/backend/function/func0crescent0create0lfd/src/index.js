@@ -9,8 +9,8 @@ const AWS = require('aws-sdk');
 const urlParse = require("url").URL;
 
 //environment variables
-const region = process.env.REGION
-const appsyncUrl = process.env.API_CRESCENT_GRAPHQLAPIENDPOINTOUTPUT
+const region = process.env.REGION;
+const appsyncUrl = process.env.API_CRESCENT_GRAPHQLAPIENDPOINTOUTPUT;
 const endpoint = new urlParse(appsyncUrl).hostname.toString();
 const createState = /* GraphQL */ `
   mutation CreateState(
@@ -47,17 +47,17 @@ exports.handler = async (event) => {
 
     const item = {
         input: {
-            lfdId: "test",
-            upTime: "upTime",
-            OPS: false,
-            Front: false,
-            HDMI1: false,
-            HDMI2: false,
-            HDMI3: false,
-            DP: false,
-            VGA: false,
-            usb: false,
-            brightness: 10
+            lfdId: event.lfdId,
+            upTime: event.upTime,
+            OPS: event.signal.OPS,
+            Front: event.signal.Front,
+            HDMI1: event.signal.HDMI1,
+            HDMI2: event.signal.HDMI2,
+            HDMI3: event.signal.HDMI3,
+            DP: event.signal.DP,
+            VGA: event.signal.VGA,
+            usb: event.usb,
+            brightness: event.brightness
         }
     };
 
