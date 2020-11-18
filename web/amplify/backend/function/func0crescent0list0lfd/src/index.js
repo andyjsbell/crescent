@@ -42,4 +42,3 @@ exports.handler = async (event) => {
         throw err;
     }
 };
-
