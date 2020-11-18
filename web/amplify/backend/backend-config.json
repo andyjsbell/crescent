@@ -39,6 +39,12 @@
           ]
         }
       ]
+    },
+    "func0crescent0get0lfd": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda",
+      "dependsOn": []
     }
   },
   "hosting": {
