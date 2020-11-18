@@ -12,9 +12,6 @@
       "AmplifyAppId": "d21v72ga8dq0av"
     },
     "categories": {
-      "auth": {
-        "crescent4f018edb": {}
-      },
       "hosting": {
         "amplifyhosting": {
           "appId": "d21v72ga8dq0av",
@@ -23,6 +20,9 @@
       },
       "function": {
         "func0crescent0create0lfd": {}
+      },
+      "auth": {
+        "crescent2f7e0838": {}
       }
     }
   }
