@@ -83,7 +83,7 @@
         "Timeout": "25",
         "Code": {
           "S3Bucket": "amplify-crescent-dev-163129-deployment",
-          "S3Key": "amplify-builds/func0crescent0create0lfd-4d742b33552f4d73524c-build.zip"
+          "S3Key": "amplify-builds/func0crescent0create0lfd-595850775241472f6564-build.zip"
         }
       }
     },
