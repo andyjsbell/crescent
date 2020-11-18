@@ -14,15 +14,14 @@ AWS.config.update({
 
 exports.handler = async (event) => {
 
-    //query for the sensor confirming it has a reported shadow
+    //query for the lfd confirming it has a reported shadow
     //you must have fleet indexing enabled in IoT Core with REGISTRY_AND_SHADOW indexed
 
-    const sensorId = event.arguments.lfdId || "";
+    const lfdId = event.arguments.lfdId || "";
 
     try {
-
         var params = {
-            queryString: 'shadow.reported.name:* AND thingName:' + lfdId
+            queryString: 'shadow.reported.location:* AND thingName:' + lfdId
         };
 
         var result = await iotClient.searchIndex(params).promise();
@@ -33,18 +32,17 @@ exports.handler = async (event) => {
 
             var shadow = JSON.parse(element.shadow);
 
-            shadow.reported.sensorId = element.thingName;
+            shadow.reported.lfdId = element.thingName;
 
             return shadow.reported;
 
         } else {
 
-            throw new Error("Sensor not found:" + sensorId);
+            throw new Error("LFD not found:" + lfdId);
         }
     }
     catch (err) {
-
         console.log("error: " + err);
-        throw new Error("Error retrieving sensor: " + sensorId);
+        throw new Error("Error retrieving LFD: " + lfdId);
     }
 };
